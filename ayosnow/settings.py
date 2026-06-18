@@ -45,6 +45,9 @@ def database_from_url(url):
 
 DEBUG = env_bool("DJANGO_DEBUG", True)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+RAILWAY_HEALTHCHECK_HOST = os.getenv("RAILWAY_HEALTHCHECK_HOST", "healthcheck.railway.app")
+if RAILWAY_HEALTHCHECK_HOST not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RAILWAY_HEALTHCHECK_HOST)
 
 INSTALLED_APPS = [
     "django.contrib.admin",

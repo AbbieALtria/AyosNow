@@ -227,6 +227,8 @@ Deploy from GitHub:
 
 Railway's PostgreSQL service exposes `DATABASE_URL`, which this project reads directly. If your database service name is different, update `DATABASE_URL` to reference that service, for example `${{your-db-service.DATABASE_URL}}`.
 
+Railway health checks may use the host `healthcheck.railway.app`; the settings include `RAILWAY_HEALTHCHECK_HOST=healthcheck.railway.app` so Django allows those probes.
+
 ## Documentation Package
 
 Build documents are in:
