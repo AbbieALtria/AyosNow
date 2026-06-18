@@ -1,0 +1,347 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AyosNow Operations</title>
+    <link rel="stylesheet" href="{% static 'ops_portal/app.css' %}">
+</head>
+<body>
+    <main class="layout">
+        <aside class="rail">
+            <div class="brand">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                    <path d="M6 10h36v28H6V10Z" fill="#334155"/>
+                    <path d="M12 17h24v4H12v-4Zm0 8h14v4H12v-4Z" fill="#fff"/>
+                    <path d="M31 27h7v7h-7v-7Z" fill="#f59e0b"/>
+                </svg>
+                <div>
+                    <p>AyosNow Ops</p>
+                    <h1>Dispatch desk</h1>
+                </div>
+            </div>
+            <div class="metric-stack">
+                <div><span>Pending bookings</span><strong id="pendingCount">0</strong></div>
+                <div><span>Approved providers</span><strong id="providerCount">0</strong></div>
+                <div><span>Open complaints</span><strong id="complaintCount">0</strong></div>
+                <div><span>Pending payouts</span><strong id="payoutCount">0</strong></div>
+            </div>
+            <nav class="nav-list" aria-label="Operations views">
+                <button class="nav-item active" type="button" data-ops-view="dispatch">Dispatch</button>
+                <button class="nav-item" type="button" data-ops-view="providers">Providers</button>
+                <button class="nav-item" type="button" data-ops-view="complaints">Complaints</button>
+                <button class="nav-item" type="button" data-ops-view="finance">Finance</button>
+            </nav>
+            <p class="note">Assign approved providers, refresh queue status, and simulate payment capture while the real gateway is pending.</p>
+        </aside>
+
+        <section class="workspace">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Admin MVP</p>
+                    <h2 id="pageTitle">Operations login</h2>
+                </div>
+                <button class="ghost hidden" id="logoutButton" type="button">Log out</button>
+            </header>
+
+            <div id="alert" class="alert hidden" role="status"></div>
+            <section id="notificationPanel" class="notification-panel hidden" aria-label="Notifications">
+                <div class="mini-head">
+                    <strong>Notifications</strong>
+                    <button class="ghost mini-button" id="refreshNotificationsButton" type="button">Refresh</button>
+                </div>
+                <div id="notificationList" class="notification-list"></div>
+            </section>
+
+            <section class="panel" data-view="login">
+                <form id="loginForm" class="form-grid">
+                    <label>
+                        Username or email
+                        <input name="identifier" value="demo-dispatcher" autocomplete="username" required>
+                    </label>
+                    <label>
+                        Password
+                        <input name="password" type="password" value="DemoPass123" autocomplete="current-password" required>
+                    </label>
+                    <button class="primary" type="submit">Login</button>
+                </form>
+            </section>
+
+            <section class="panel hidden" data-view="dispatch">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Dispatch queue</p>
+                        <h3>Bookings needing assignment</h3>
+                    </div>
+                    <button class="secondary" id="refreshButton" type="button">Refresh</button>
+                </div>
+                <form id="dispatchFilters" class="filter-bar">
+                    <label>
+                        Search
+                        <input name="q" placeholder="Booking, service, address">
+                    </label>
+                    <label>
+                        Status
+                        <select name="status">
+                            <option value="">Open dispatch</option>
+                            <option value="pending_dispatch">Pending dispatch</option>
+                            <option value="provider_declined">Provider declined</option>
+                        </select>
+                    </label>
+                    <button class="secondary" type="submit">Apply</button>
+                    <button class="ghost" type="button" data-clear-filters="dispatchFilters">Clear</button>
+                </form>
+                <p class="result-count" id="dispatchResultCount"></p>
+                <div id="queueList" class="queue-list"></div>
+            </section>
+
+            <section class="panel hidden" data-view="complaints">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Complaints desk</p>
+                        <h3>Open and recent issues</h3>
+                    </div>
+                    <button class="secondary" id="refreshComplaintsButton" type="button">Refresh</button>
+                </div>
+                <form id="complaintFilters" class="filter-bar">
+                    <label>
+                        Search
+                        <input name="q" placeholder="Category, booking, service">
+                    </label>
+                    <label>
+                        Status
+                        <select name="status">
+                            <option value="">All complaints</option>
+                            <option value="open">Open</option>
+                            <option value="under_review">Under review</option>
+                            <option value="awaiting_customer">Awaiting customer</option>
+                            <option value="awaiting_provider">Awaiting provider</option>
+                            <option value="escalated">Escalated</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </label>
+                    <button class="secondary" type="submit">Apply</button>
+                    <button class="ghost" type="button" data-clear-filters="complaintFilters">Clear</button>
+                </form>
+                <p class="result-count" id="complaintResultCount"></p>
+                <div id="complaintsList" class="queue-list"></div>
+            </section>
+
+            <section class="panel hidden" data-view="providers">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Verification desk</p>
+                        <h3>Provider applications</h3>
+                    </div>
+                    <button class="secondary" id="refreshProvidersButton" type="button">Refresh</button>
+                </div>
+                <form id="providerFilters" class="filter-bar">
+                    <label>
+                        Search
+                        <input name="q" placeholder="Name, mobile, city, skill">
+                    </label>
+                    <label>
+                        Status
+                        <select name="status">
+                            <option value="">All providers</option>
+                            <option value="pending">Pending</option>
+                            <option value="under_review">Under review</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </label>
+                    <button class="secondary" type="submit">Apply</button>
+                    <button class="ghost" type="button" data-clear-filters="providerFilters">Clear</button>
+                </form>
+                <p class="result-count" id="providerResultCount"></p>
+                <div id="providersList" class="queue-list"></div>
+            </section>
+
+            <section class="panel hidden" data-view="finance">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Finance desk</p>
+                        <h3>Payout review</h3>
+                    </div>
+                    <button class="secondary" id="refreshFinanceButton" type="button">Refresh</button>
+                </div>
+                <div class="finance-summary">
+                    <div><span>Captured revenue</span><strong id="capturedRevenue">PHP 0.00</strong></div>
+                    <div><span>Provider earnings</span><strong id="providerEarnings">PHP 0.00</strong></div>
+                    <div><span>Requested payouts</span><strong id="requestedPayouts">PHP 0.00</strong></div>
+                    <div><span>Released payouts</span><strong id="releasedPayouts">PHP 0.00</strong></div>
+                    <div><span>Wallet available</span><strong id="walletAvailable">PHP 0.00</strong></div>
+                    <div><span>Wallet held</span><strong id="walletHeld">PHP 0.00</strong></div>
+                </div>
+                <h3 class="subhead">Provider reconciliation</h3>
+                <div id="reconciliationList" class="queue-list"></div>
+                <form id="payoutFilters" class="filter-bar">
+                    <label>
+                        Search
+                        <input name="q" placeholder="Provider, reference, note">
+                    </label>
+                    <label>
+                        Status
+                        <select name="status">
+                            <option value="">All payouts</option>
+                            <option value="requested">Requested</option>
+                            <option value="under_review">Under review</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="released">Released</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </label>
+                    <button class="secondary" type="submit">Apply</button>
+                    <button class="ghost" type="button" data-clear-filters="payoutFilters">Clear</button>
+                </form>
+                <p class="result-count" id="payoutResultCount"></p>
+                <div id="payoutsList" class="queue-list"></div>
+            </section>
+        </section>
+    </main>
+
+    <template id="bookingTemplate">
+        <article class="booking-card">
+            <div class="booking-main">
+                <span class="status-pill"></span>
+                <h4></h4>
+                <p class="booking-meta"></p>
+            </div>
+            <form class="assign-form">
+                <label>
+                    Provider
+                    <select name="provider_id" required></select>
+                </label>
+                <label>
+                    Assignment reason
+                    <input name="reason" value="Best eligible provider" required>
+                </label>
+                <div class="button-row">
+                    <button class="primary" type="submit">Assign</button>
+                    <button class="secondary simulate-button" type="button">Simulate capture</button>
+                    <button class="ghost timeline-button" type="button">Timeline</button>
+                </div>
+            </form>
+            <div class="timeline-list hidden"></div>
+        </article>
+    </template>
+
+    <template id="payoutTemplate">
+        <article class="booking-card payout-card">
+            <div class="booking-main">
+                <span class="status-pill"></span>
+                <h4></h4>
+                <p class="booking-meta"></p>
+            </div>
+            <form class="payout-form">
+                <label>
+                    Status
+                    <select name="status" required>
+                        <option value="requested">Requested</option>
+                        <option value="under_review">Under review</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="released">Released</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </label>
+                <label>
+                    Reference
+                    <input name="payout_reference" placeholder="Bank or transfer ref">
+                </label>
+                <label class="wide">
+                    Finance reason
+                    <input name="finance_reason" placeholder="Decision note">
+                </label>
+                <div class="button-row">
+                    <button class="primary" type="submit">Update payout</button>
+                    <button class="secondary quick-payout-button" type="button" data-payout-status="under_review">Review</button>
+                    <button class="secondary quick-payout-button" type="button" data-payout-status="approved">Approve</button>
+                    <button class="secondary quick-payout-button" type="button" data-payout-status="released">Release</button>
+                    <button class="ghost timeline-button" type="button">Timeline</button>
+                </div>
+            </form>
+            <div class="timeline-list hidden"></div>
+        </article>
+    </template>
+
+    <template id="complaintTemplate">
+        <article class="booking-card complaint-card">
+            <div class="booking-main">
+                <span class="status-pill"></span>
+                <h4></h4>
+                <p class="booking-meta"></p>
+            </div>
+            <form class="complaint-form">
+                <label>
+                    Status
+                    <select name="status" required>
+                        <option value="open">Open</option>
+                        <option value="under_review">Under review</option>
+                        <option value="awaiting_customer">Awaiting customer</option>
+                        <option value="awaiting_provider">Awaiting provider</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="escalated">Escalated</option>
+                    </select>
+                </label>
+                <label>
+                    Financial impact
+                    <input name="financial_impact" type="number" min="0" step="0.01" value="0">
+                </label>
+                <label class="wide">
+                    Resolution notes
+                    <input name="resolution" placeholder="Decision or next action">
+                </label>
+                <div class="button-row">
+                    <button class="primary" type="submit">Update complaint</button>
+                    <button class="secondary quick-complaint-button" type="button" data-complaint-status="under_review">Review</button>
+                    <button class="secondary quick-complaint-button" type="button" data-complaint-status="resolved">Resolve</button>
+                    <button class="ghost timeline-button" type="button">Timeline</button>
+                </div>
+            </form>
+            <div class="timeline-list hidden"></div>
+        </article>
+    </template>
+
+    <template id="providerTemplate">
+        <article class="booking-card provider-card">
+            <div class="booking-main">
+                <span class="status-pill"></span>
+                <h4></h4>
+                <p class="booking-meta"></p>
+                <div class="timeline-list hidden"></div>
+            </div>
+            <form class="provider-form">
+                <label>
+                    Status
+                    <select name="status" required>
+                        <option value="pending">Pending</option>
+                        <option value="under_review">Under review</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </label>
+                <label class="wide">
+                    Verification notes
+                    <input name="reason" placeholder="Review note">
+                </label>
+                <div class="button-row">
+                    <button class="primary" type="submit">Update provider</button>
+                    <button class="secondary quick-provider-button" type="button" data-provider-status="under_review">Review</button>
+                    <button class="secondary quick-provider-button" type="button" data-provider-status="approved">Approve</button>
+                    <button class="secondary quick-provider-button" type="button" data-provider-status="suspended">Suspend</button>
+                    <button class="ghost timeline-button" type="button">Timeline</button>
+                </div>
+            </form>
+        </article>
+    </template>
+
+    <script src="{% static 'ops_portal/app.js' %}"></script>
+</body>
+</html>

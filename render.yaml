@@ -1,0 +1,75 @@
+databases:
+  - name: ayosnow-db
+    plan: basic-256mb
+    databaseName: ayosnow
+    user: ayosnow
+
+services:
+  - type: web
+    name: ayosnow
+    runtime: python
+    plan: starter
+    buildCommand: bash build.sh
+    startCommand: gunicorn ayosnow.wsgi:application --bind 0.0.0.0:$PORT --workers 3
+    healthCheckPath: /readyz
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ayosnow-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: false
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ayosnow.onrender.com
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: https://ayosnow.onrender.com
+      - key: DJANGO_SECURE_SSL_REDIRECT
+        value: true
+      - key: DJANGO_SESSION_COOKIE_SECURE
+        value: true
+      - key: DJANGO_CSRF_COOKIE_SECURE
+        value: true
+      - key: DJANGO_SECURE_HSTS_SECONDS
+        value: 31536000
+      - key: DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS
+        value: true
+      - key: DJANGO_SECURE_HSTS_PRELOAD
+        value: true
+      - key: DJANGO_SECURE_PROXY_SSL_HEADER
+        value: true
+      - key: PAYMENT_WEBHOOK_SECRET
+        sync: false
+      - key: AYOSNOW_PAYMENT_GATEWAY_BACKEND
+        value: finance.gateways.PayMongoPaymentGateway
+      - key: PAYMONGO_SECRET_KEY
+        sync: false
+      - key: PAYMONGO_WEBHOOK_SECRET
+        sync: false
+      - key: PAYMONGO_SUCCESS_URL
+        value: https://ayosnow.onrender.com/app/
+      - key: PAYMONGO_CANCEL_URL
+        value: https://ayosnow.onrender.com/app/
+      - key: AYOSNOW_SMS_BACKEND
+        value: accounts.sms.SemaphoreSmsBackend
+      - key: SEMAPHORE_API_KEY
+        sync: false
+      - key: SEMAPHORE_SENDER_NAME
+        value: AyosNow
+      - key: AYOSNOW_DEFAULT_CURRENCY
+        value: PHP
+      - key: AYOSNOW_COMMISSION_RATE
+        value: 0.20
+      - key: AYOSNOW_OTP_EXPIRY_SECONDS
+        value: 600
+      - key: AYOSNOW_OTP_MAX_ATTEMPTS
+        value: 5
+      - key: AYOSNOW_OTP_RESEND_COOLDOWN_SECONDS
+        value: 60
+      - key: AYOSNOW_UPLOAD_MAX_BYTES
+        value: 5242880
+      - key: AYOSNOW_UPLOAD_URL_TTL_SECONDS
+        value: 900
+      - key: AYOSNOW_UPLOAD_ALLOWED_TYPES
+        value: image/jpeg,image/png,application/pdf

@@ -1,0 +1,226 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AyosNow Booking</title>
+    <link rel="stylesheet" href="{% static 'customer_portal/app.css' %}">
+</head>
+<body>
+    <main class="shell">
+        <aside class="side-panel">
+            <div class="brand-row">
+                <div class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" role="img">
+                        <path d="M24 4 42 14v20L24 44 6 34V14L24 4Z" fill="#0f766e"/>
+                        <path d="M16 25.5 21.5 31 33 18.5" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="eyebrow">AyosNow</p>
+                    <h1>Book a trusted service</h1>
+                </div>
+            </div>
+            <div class="progress-list" aria-label="Booking progress">
+                <div class="progress-item active" data-progress="auth"><span>1</span>Account</div>
+                <div class="progress-item" data-progress="service"><span>2</span>Service</div>
+                <div class="progress-item" data-progress="address"><span>3</span>Address</div>
+                <div class="progress-item" data-progress="schedule"><span>4</span>Schedule</div>
+                <div class="progress-item" data-progress="confirm"><span>5</span>Confirm</div>
+            </div>
+            <div class="trust-strip">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8.7 8 9 4.6-.3 8-4 8-9V6l-8-3Zm-1 12.2-3-3 1.4-1.4 1.6 1.6 4-4 1.4 1.4-5.4 5.4Z"/></svg>
+                <span>Verified providers, tracked bookings, secure wallet records.</span>
+            </div>
+        </aside>
+
+        <section class="workbench">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Customer app MVP</p>
+                    <h2 id="screenTitle">Sign in or create account</h2>
+                </div>
+                <div class="top-actions">
+                    <button class="ghost hidden" id="bookViewButton" type="button">Book</button>
+                    <button class="ghost hidden" id="historyViewButton" type="button">My bookings</button>
+                    <button class="ghost hidden" id="logoutButton" type="button">Log out</button>
+                </div>
+            </header>
+
+            <div id="alert" class="alert hidden" role="status"></div>
+            <section id="notificationPanel" class="notification-panel hidden" aria-label="Notifications">
+                <div class="mini-head">
+                    <strong>Notifications</strong>
+                    <button class="ghost mini-button" id="refreshNotificationsButton" type="button">Refresh</button>
+                </div>
+                <div id="notificationList" class="notification-list"></div>
+            </section>
+
+            <section class="panel" data-step="auth">
+                <div class="tabs" role="tablist">
+                    <button class="tab active" type="button" data-auth-tab="login">Login</button>
+                    <button class="tab" type="button" data-auth-tab="register">Register</button>
+                </div>
+
+                <form id="loginForm" class="form-grid">
+                    <label>
+                        Mobile or email
+                        <input name="identifier" autocomplete="username" value="+639170000100" required>
+                    </label>
+                    <label>
+                        Password
+                        <input name="password" type="password" autocomplete="current-password" value="DemoPass123" required>
+                    </label>
+                    <button class="primary" type="submit">Login</button>
+                </form>
+
+                <form id="registerForm" class="form-grid hidden">
+                    <label>
+                        Mobile
+                        <input name="mobile" placeholder="+63917xxxxxxx" required>
+                    </label>
+                    <label>
+                        Email
+                        <input name="email" type="email" placeholder="you@example.com">
+                    </label>
+                    <label>
+                        First name
+                        <input name="first_name" required>
+                    </label>
+                    <label>
+                        Last name
+                        <input name="last_name" required>
+                    </label>
+                    <label>
+                        Password
+                        <input name="password" type="password" minlength="8" required>
+                    </label>
+                    <button class="primary" type="submit">Create account</button>
+                </form>
+
+                <form id="otpForm" class="form-grid hidden">
+                    <label>
+                        OTP code
+                        <input name="otp_code" maxlength="6" required>
+                    </label>
+                    <button class="primary" type="submit">Verify OTP</button>
+                </form>
+            </section>
+
+            <section class="panel hidden" data-step="service">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Step 2</p>
+                        <h3>Select service</h3>
+                    </div>
+                    <button class="ghost" type="button" data-back="auth">Back</button>
+                </div>
+                <div id="serviceGrid" class="service-grid"></div>
+            </section>
+
+            <section class="panel hidden" data-step="address">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Step 3</p>
+                        <h3>Service address</h3>
+                    </div>
+                    <button class="ghost" type="button" data-back="service">Back</button>
+                </div>
+                <div id="addressList" class="address-list"></div>
+                <form id="addressForm" class="form-grid compact">
+                    <label>
+                        Label
+                        <input name="label" value="Home" required>
+                    </label>
+                    <label>
+                        Address line
+                        <input name="line1" placeholder="Street, building, unit" required>
+                    </label>
+                    <label>
+                        Landmark
+                        <input name="landmark" placeholder="Nearby reference">
+                    </label>
+                    <button class="secondary" type="submit">Add address</button>
+                </form>
+            </section>
+
+            <section class="panel hidden" data-step="schedule">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Step 4</p>
+                        <h3>Schedule and details</h3>
+                    </div>
+                    <button class="ghost" type="button" data-back="address">Back</button>
+                </div>
+                <form id="bookingForm" class="form-grid">
+                    <label>
+                        Date and time
+                        <input name="requested_schedule" type="datetime-local" required>
+                    </label>
+                    <label class="wide">
+                        Service notes
+                        <textarea name="description" rows="5" placeholder="Tell the provider what needs to be done" required></textarea>
+                    </label>
+                    <button class="primary" type="submit">Create booking</button>
+                </form>
+            </section>
+
+            <section class="panel hidden" data-step="confirm">
+                <div class="result-card">
+                    <div class="success-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M9.5 16.2 5.8 12.5 4.4 13.9l5.1 5.1L20 8.5 18.6 7.1 9.5 16.2Z"/></svg>
+                    </div>
+                    <p class="eyebrow">Booking created</p>
+                    <h3 id="bookingSummary">Your request is waiting for dispatch.</h3>
+                    <dl id="bookingDetails"></dl>
+                    <div class="actions">
+                        <button class="primary" id="checkoutButton" type="button">Create checkout</button>
+                        <button class="secondary" id="viewHistoryButton" type="button">View my bookings</button>
+                        <button class="secondary" id="newBookingButton" type="button">New booking</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel hidden" data-step="history">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">My bookings</p>
+                        <h3>Status tracking</h3>
+                    </div>
+                    <button class="secondary" id="refreshHistoryButton" type="button">Refresh status</button>
+                </div>
+                <div id="historyList" class="history-list"></div>
+            </section>
+
+            <section class="panel hidden" data-step="complaint">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Report issue</p>
+                        <h3 id="complaintTitle">Tell us what happened</h3>
+                    </div>
+                    <button class="ghost" id="cancelComplaintButton" type="button">Back</button>
+                </div>
+                <form id="complaintForm" class="form-grid">
+                    <label>
+                        Category
+                        <select name="category" required>
+                            <option value="quality">Service quality</option>
+                            <option value="late_provider">Late provider</option>
+                            <option value="payment">Payment issue</option>
+                            <option value="safety">Safety concern</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </label>
+                    <label class="wide">
+                        Description
+                        <textarea name="description" rows="5" placeholder="Describe the issue clearly" required></textarea>
+                    </label>
+                    <button class="primary" type="submit">Submit complaint</button>
+                </form>
+            </section>
+        </section>
+    </main>
+    <script src="{% static 'customer_portal/app.js' %}"></script>
+</body>
+</html>

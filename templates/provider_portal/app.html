@@ -1,0 +1,151 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AyosNow Provider</title>
+    <link rel="stylesheet" href="{% static 'provider_portal/app.css' %}">
+</head>
+<body>
+    <main class="layout">
+        <aside class="rail">
+            <div class="brand">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                    <path d="M24 4 42 14v20L24 44 6 34V14L24 4Z" fill="#155e75"/>
+                    <path d="M15 29h18v4H15v-4Zm2-7h14v4H17v-4Zm3-7h8v4h-8v-4Z" fill="#fff"/>
+                </svg>
+                <div>
+                    <p>AyosNow Provider</p>
+                    <h1>Job desk</h1>
+                </div>
+            </div>
+            <nav class="nav-list" aria-label="Provider views">
+                <button class="nav-item" type="button" data-view-button="profile">Profile</button>
+                <button class="nav-item active" type="button" data-view-button="jobs">Jobs</button>
+                <button class="nav-item" type="button" data-view-button="wallet">Wallet</button>
+            </nav>
+            <div class="status-note">
+                <strong>MVP provider flow</strong>
+                <span>Review assigned jobs, accept work, submit completion notes, and monitor wallet balance.</span>
+            </div>
+        </aside>
+
+        <section class="workspace">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Provider app MVP</p>
+                    <h2 id="pageTitle">Provider login</h2>
+                </div>
+                <button class="ghost hidden" id="logoutButton" type="button">Log out</button>
+            </header>
+
+            <div id="alert" class="alert hidden" role="status"></div>
+            <section id="notificationPanel" class="notification-panel hidden" aria-label="Notifications">
+                <div class="mini-head">
+                    <strong>Notifications</strong>
+                    <button class="ghost mini-button" id="refreshNotificationsButton" type="button">Refresh</button>
+                </div>
+                <div id="notificationList" class="notification-list"></div>
+            </section>
+
+            <section class="panel" data-view="login">
+                <form id="loginForm" class="form-grid">
+                    <label>
+                        Mobile or email
+                        <input name="identifier" value="+639170000200" autocomplete="username" required>
+                    </label>
+                    <label>
+                        Password
+                        <input name="password" type="password" value="DemoPass123" autocomplete="current-password" required>
+                    </label>
+                    <button class="primary" type="submit">Login</button>
+                </form>
+            </section>
+
+            <section class="panel hidden" data-view="jobs">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Assigned work</p>
+                        <h3>Jobs</h3>
+                    </div>
+                    <button class="secondary" id="refreshJobsButton" type="button">Refresh</button>
+                </div>
+                <div id="jobsList" class="jobs-list"></div>
+            </section>
+
+            <section class="panel hidden" data-view="profile">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Application</p>
+                        <h3>Provider profile</h3>
+                    </div>
+                    <button class="secondary" id="refreshProfileButton" type="button">Refresh</button>
+                </div>
+                <div id="profileSummary" class="profile-summary"></div>
+                <div id="profileTimeline" class="timeline-list"></div>
+            </section>
+
+            <section class="panel hidden" data-view="wallet">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Earnings</p>
+                        <h3>Wallet</h3>
+                    </div>
+                    <button class="secondary" id="refreshWalletButton" type="button">Refresh</button>
+                </div>
+                <div class="wallet-summary">
+                    <div>
+                        <span>Available balance</span>
+                        <strong id="availableBalance">PHP 0.00</strong>
+                    </div>
+                    <div>
+                        <span>Held balance</span>
+                        <strong id="heldBalance">PHP 0.00</strong>
+                    </div>
+                </div>
+                <form id="payoutForm" class="payout-form">
+                    <label>
+                        Payout amount
+                        <input name="amount" type="number" min="1" step="0.01" placeholder="0.00" required>
+                    </label>
+                    <label>
+                        Notes
+                        <input name="notes" placeholder="Optional payout note">
+                    </label>
+                    <button class="primary" type="submit">Request payout</button>
+                </form>
+                <h3 class="subhead">Payout requests</h3>
+                <div id="payoutList" class="ledger-list"></div>
+                <h3 class="subhead">Wallet ledger</h3>
+                <div id="ledgerList" class="ledger-list"></div>
+            </section>
+        </section>
+    </main>
+
+    <template id="jobTemplate">
+        <article class="job-card">
+            <div class="job-main">
+                <span class="status-pill"></span>
+                <h4></h4>
+                <p class="job-meta"></p>
+            </div>
+            <div class="job-actions">
+                <button class="primary accept-button" type="button">Accept</button>
+                <button class="secondary complete-button" type="button">Complete</button>
+                <button class="ghost timeline-button" type="button">Timeline</button>
+            </div>
+            <div class="timeline-list hidden"></div>
+            <form class="completion-form hidden">
+                <label>
+                    Completion notes
+                    <textarea name="completion_notes" rows="3" placeholder="Describe what was completed" required></textarea>
+                </label>
+                <button class="primary" type="submit">Submit completion</button>
+            </form>
+        </article>
+    </template>
+
+    <script src="{% static 'provider_portal/app.js' %}"></script>
+</body>
+</html>
