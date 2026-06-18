@@ -6,6 +6,7 @@
   },
   "deploy": {
     "preDeployCommand": "python manage.py migrate && python manage.py check_deploy_env",
+    "startCommand": "python start.py",
     "healthcheckPath": "/healthz",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
