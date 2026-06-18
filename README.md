@@ -210,7 +210,7 @@ Deploy from GitHub:
 
 1. Push this repository to GitHub.
 2. In Railway, create a new project and choose **Deploy from GitHub repo**.
-3. Add a PostgreSQL service to the Railway project.
+3. Add a PostgreSQL service to the Railway project. Your screenshot shows this is already done as `ayosnow-db`.
 4. Open the Django app service variables and paste values from `.env.railway.example`.
 5. Replace the secret placeholders:
    - `DJANGO_SECRET_KEY`
@@ -225,7 +225,7 @@ Deploy from GitHub:
    - `PAYMONGO_CANCEL_URL`
 7. Deploy the service and open `/readyz`.
 
-Railway's PostgreSQL service exposes `DATABASE_URL`, which this project reads directly.
+Railway's PostgreSQL service exposes `DATABASE_URL`, which this project reads directly. If your database service name is different, update `DATABASE_URL` to reference that service, for example `${{your-db-service.DATABASE_URL}}`.
 
 ## Documentation Package
 

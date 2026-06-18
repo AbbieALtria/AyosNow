@@ -11,7 +11,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-RUN python manage.py collectstatic --noinput
+RUN DJANGO_DEBUG=true DATABASE_URL=sqlite:///db.sqlite3 python manage.py collectstatic --noinput
 
 USER appuser
 
